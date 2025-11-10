@@ -659,13 +659,25 @@ html[data-theme="dark"] .theme-toggle .moon-icon {
     border: 1px solid var(--border-color);
     background: var(--surface-alt);
     padding: 1.6rem 1.8rem;
-    transition: border-color var(--transition-speed) ease,
+    box-shadow:
+        0 18px 35px rgba(15, 15, 26, 0.08),
+        0 12px 18px rgba(15, 15, 26, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    transition:
+        transform var(--transition-speed) ease,
+        box-shadow var(--transition-speed) ease,
+        border-color var(--transition-speed) ease,
         background var(--transition-speed) ease;
 }
 
 .project-card:hover {
-    border-color: var(--accent-primary);
+    transform: translateY(-6px);
+    border-color: rgba(11, 11, 15, 0.15);
     background: var(--surface);
+    box-shadow:
+        0 28px 55px rgba(15, 15, 26, 0.14),
+        0 18px 26px rgba(15, 15, 26, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 .project-top {

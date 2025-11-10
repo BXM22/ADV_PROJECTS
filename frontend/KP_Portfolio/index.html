@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KP Art Portfolio</title>
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Manrope:wght@300;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="floating-blobs">
+      <span class="blob blob-one"></span>
+      <span class="blob blob-two"></span>
+      <span class="blob blob-three"></span>
+    </div>
+
+    <header class="site-header">
+      <div class="logo">KP ✷ Art</div>
+      <nav class="nav-links">
+        <a href="#about">About</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#process">Process</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <button class="mood-toggle" type="button" aria-label="Toggle color mood">
+        Toggle Mood
+      </button>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="profile-card">
+          <div class="profile-img" role="img" aria-label="Profile picture placeholder"></div>
+          <div class="profile-info">
+            <h1>Kai Parker</h1>
+            <p>
+              Mixed-media artist exploring neon dreams, cosmic vibes, and bold storytelling.
+              This is a placeholder bio — swap in your artistic story, awards, and inspirations.
+            </p>
+            <div class="cta-group">
+              <a class="cta primary" href="#gallery">See Latest Pieces</a>
+              <a class="cta secondary" href="#contact">Let's Collaborate</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="about" class="about">
+        <h2>About the Artist</h2>
+        <p>
+          Paint a picture with words! Use this space to describe your background, favorite mediums,
+          or the themes you’re obsessed with. Add fun facts, an artist statement, or upcoming shows.
+        </p>
+      </section>
+
+      <section id="gallery" class="gallery">
+        <div class="section-heading">
+          <h2>Featured Artworks</h2>
+          <p>Swap these colorful placeholders for your masterpieces. Hover to reveal notes.</p>
+        </div>
+        <div class="gallery-grid">
+          <article class="art-card">
+            <div class="art-img placeholder" data-title="Electric Bloom"></div>
+            <div class="art-info">
+              <h3>Electric Bloom</h3>
+              <p>Describe the concept, medium, and the feeling you want to evoke.</p>
+            </div>
+          </article>
+          <article class="art-card">
+            <div class="art-img placeholder alt" data-title="Moonlit Echo"></div>
+            <div class="art-info">
+              <h3>Moonlit Echo</h3>
+              <p>Highlight the inspiration or story behind the piece. Keep it punchy.</p>
+            </div>
+          </article>
+          <article class="art-card">
+            <div class="art-img placeholder" data-title="Neon Tide"></div>
+            <div class="art-info">
+              <h3>Neon Tide</h3>
+              <p>Jot down details like dimensions, medium, or the playlist you had on loop.</p>
+            </div>
+          </article>
+          <article class="art-card">
+            <div class="art-img placeholder alt" data-title="Stellar Pulse"></div>
+            <div class="art-info">
+              <h3>Stellar Pulse</h3>
+              <p>Drop in client work, personal faves, or experimental pieces here.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="process" class="process">
+        <h2>Process &amp; Services</h2>
+        <div class="process-grid">
+          <div class="process-card">
+            <h3>Sketch</h3>
+            <p>Start with loose explorations, mood boards, or wild brain dumps.</p>
+          </div>
+          <div class="process-card">
+            <h3>Experiment</h3>
+            <p>Layer vibrant colors, texture, and unexpected materials.</p>
+          </div>
+          <div class="process-card">
+            <h3>Deliver</h3>
+            <p>Polish the final work, ship prints, or hand off digital files.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="spotlight">
+        <div class="spotlight-copy">
+          <h2>Spotlight</h2>
+          <p>
+            Highlight a current exhibition, collaboration, or a piece you want everyone to notice.
+            Use the button to shuffle accent colors and jazz things up.
+          </p>
+          <button class="shuffle" type="button">Shuffle Spotlight Colors</button>
+        </div>
+        <div class="spotlight-art">
+          <div class="spotlight-frame">
+            <div class="spotlight-placeholder">Your Art Here</div>
+          </div>
+          <span class="spotlight-caption">Title • Medium • Year</span>
+        </div>
+      </section>
+    </main>
+
+    <footer id="contact" class="site-footer">
+      <div class="footer-info">
+        <h2>Contact</h2>
+        <p>
+          Drop a note for commissions, gallery invites, or cosmic collaborations.
+        </p>
+        <a class="cta primary" href="mailto:hello@kpstudio.art">hello@kpstudio.art</a>
+      </div>
+      <form class="contact-form">
+        <label>
+          Name
+          <input type="text" placeholder="Your name" />
+        </label>
+        <label>
+          Email
+          <input type="email" placeholder="name@email.com" />
+        </label>
+        <label>
+          Project vibes
+          <textarea placeholder="Tell me about your dream project"></textarea>
+        </label>
+        <button type="submit">Send Message</button>
+      </form>
+      <p class="copyright">
+        © <span id="year"></span> KP Studio. Made with color and caffeine.
+      </p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
+
