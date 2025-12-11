@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --background: #f5f5f7;
+            --foreground: #1d1d1f;
+            --card: #ffffff;
+            --card-foreground: #1d1d1f;
+            --primary: #007aff;
+            --primary-foreground: #ffffff;
+            --secondary: #f2f2f7;
+            --secondary-foreground: #1d1d1f;
+            --muted: #f9f9f9;
+            --muted-foreground: #6e6e73;
+            --accent: #34c759;
+            --accent-foreground: #ffffff;
+            --destructive: #ff3b30;
+            --destructive-foreground: #ffffff;
+            --success: #34c759;
+            --warning: #ff9500;
+            --border: #e5e5ea;
+            --input: #f2f2f7;
+            --ring: #007aff;
+            --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', 'Helvetica Neue', sans-serif;
+            --radius: 1rem;
+            --shadow-sm: 0 1px 2px 0px rgba(0, 0, 0, 0.05);
+            --shadow: 0 1px 3px 0px rgba(0, 0, 0, 0.10), 0 1px 2px -1px rgba(0, 0, 0, 0.10);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.10), 0 2px 4px -2px rgba(0, 0, 0, 0.10);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.10), 0 4px 6px -4px rgba(0, 0, 0, 0.10);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.10), 0 8px 10px -6px rgba(0, 0, 0, 0.10);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans) !important;
+            background: var(--background) !important;
+            color: var(--foreground) !important;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+            min-height: 100vh !important;
+            padding-bottom: 80px !important;
+        }
+
+        .container {
+            max-width: 428px !important;
+            margin: 0 auto !important;
+            background: var(--background) !important;
+            min-height: 100vh !important;
+            position: relative !important;
+        }
+
+        /* Header */
+        .header {
+            background: var(--card) !important;
+            padding: 1rem 1.25rem !important;
+            border-bottom: 1px solid var(--border) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 100 !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+        }
+
+        .header h1 {
+            font-size: 1.25rem !important;
+            font-weight: 600 !important;
+            color: var(--foreground) !important;
+        }
+
+        .header-actions {
+            display: flex !important;
+            gap: 0.75rem !important;
+        }
+
+        .btn-icon {
+            background: none !important;
+            border: none !important;
+            font-size: 1.25rem !important;
+            cursor: pointer !important;
+            padding: 0.5rem !important;
+            color: var(--primary) !important;
+            transition: transform 150ms ease !important;
+        }
+
+        .btn-icon:active {
+            transform: scale(0.95) !important;
+        }
+
+        /* Timer */
+        .timer {
+            background: var(--card) !important;
+            padding: 0.75rem 1.25rem !important;
+            border-bottom: 1px solid var(--border) !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            font-size: 0.875rem !important;
+            color: var(--muted-foreground) !important;
+        }
+
+        .timer-icon {
+            font-size: 1rem !important;
+        }
+
+        /* Exercise Card */
+        .exercise-card {
+            background: var(--card) !important;
+            margin: 1rem 1.25rem !important;
+            border-radius: var(--radius) !important;
+            padding: 1.5rem !important;
+            box-shadow: var(--shadow-md) !important;
+            animation: slideUp 300ms ease-out !important;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .exercise-header {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            margin-bottom: 1.5rem !important;
+        }
+
+        .exercise-name {
+            font-size: 1.5rem !important;
+            font-weight: 600 !important;
+            color: var(--foreground) !important;
+        }
+
+        .set-indicator {
+            font-size: 0.875rem !important;
+            color: var(--muted-foreground) !important;
+            background: var(--secondary) !important;
+            padding: 0.25rem 0.75rem !important;
+            border-radius: 1rem !important;
+        }
+
+        .pr-badge {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%) !important;
+            color: #1d1d1f !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 1rem !important;
+            font-size: 0.875rem !important;
+            font-weight: 600 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            margin-bottom: 1rem !important;
+            animation: prSlideIn 600ms ease-out !important;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3) !important;
+        }
+
+        @keyframes prSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .input-group {
+            margin-bottom: 1rem !important;
+        }
+
+        .input-label {
+            font-size: 0.875rem !important;
+            color: var(--muted-foreground) !important;
+            margin-bottom: 0.5rem !important;
+            display: block !important;
+            font-weight: 500 !important;
+        }
+
+        .input-wrapper {
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+        }
+
+        .input-field {
+            flex: 1 !important;
+            background: var(--input) !important;
+            border: 2px solid var(--border) !important;
+            border-radius: 0.75rem !important;
+            padding: 0.875rem 1rem !important;
+            font-size: 1.125rem !important;
+            font-weight: 600 !important;
+            color: var(--foreground) !important;
+            font-family: var(--font-sans) !important;
+            transition: all 200ms ease !important;
+        }
+
+        .input-field:focus {
+            outline: none !important;
+            border-color: var(--primary) !important;
+            transform: scale(1.01) !important;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1) !important;
+        }
+
+        .input-unit {
+            font-size: 0.875rem !important;
+            color: var(--muted-foreground) !important;
+            font-weight: 500 !important;
+        }
+
+        .btn-complete {
+            width: 100% !important;
+            background: var(--accent) !important;
+            color: var(--accent-foreground) !important;
+            border: none !important;
+            border-radius: 0.75rem !important;
+            padding: 1rem !important;
+            font-size: 1rem !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: all 200ms ease !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 0.5rem !important;
+            margin-top: 1rem !important;
+        }
+
+        .btn-complete:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: var(--shadow-lg) !important;
+        }
+
+        .btn-complete:active {
+            transform: scale(0.95) !important;
+        }
+
+        /* Rest Timer */
+        .rest-timer {
+            background: var(--card) !important;
+            margin: 1rem 1.25rem !important;
+            border-radius: var(--radius) !important;
+            padding: 1.5rem !important;
+            box-shadow: var(--shadow-md) !important;
+            text-align: center !important;
+        }
+
+        .rest-timer h3 {
+            font-size: 1rem !important;
+            font-weight: 600 !important;
+            margin-bottom: 1rem !important;
+            color: var(--foreground) !important;
+        }
+
+        .timer-circle {
+            width: 120px !important;
+            height: 120px !important;
+            margin: 0 auto 1.5rem !important;
+            position: relative !important;
+        }
+
+        .timer-svg {
+            transform: rotate(-90deg) !important;
+        }
+
+        .timer-circle-bg {
+            fill: none !important;
+            stroke: var(--secondary) !important;
+            stroke-width: 8 !important;
+        }
+
+        .timer-circle-progress {
+            fill: none !important;
+            stroke: var(--primary) !important;
+            stroke-width: 8 !important;
+            stroke-linecap: round !important;
+            transition: stroke-dashoffset 1s linear !important;
+        }
+
+        .timer-text {
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            font-size: 1.5rem !important;
+            font-weight: 600 !important;
+            color: var(--foreground) !important;
+        }
+
+        .timer-actions {
+            display: flex !important;
+            gap: 0.75rem !important;
+            justify-content: center !important;
+        }
+
+        .btn-secondary {
+            background: var(--secondary) !important;
+            color: var(--secondary-foreground) !important;
+            border: none !important;
+            border-radius: 0.75rem !important;
+            padding: 0.75rem 1.5rem !important;
+            font-size: 0.875rem !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: all 200ms ease !important;
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.95) !important;
+        }
+
+        /* Previous Sets */
+        .previous-sets {
+            background: var(--card) !important;
+            margin: 1rem 1.25rem !important;
+            border-radius: var(--radius) !important;
+            padding: 1.25rem !important;
+            box-shadow: var(--shadow-md) !important;
+        }
+
+        .previous-sets h3 {
+            font-size: 1rem !important;
+            font-weight: 600 !important;
+            margin-bottom: 1rem !important;
+            color: var(--foreground) !important;
+        }
+
+        .set-item {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 0.75rem 0 !important;
+            border-bottom: 1px solid var(--border) !important;
+        }
+
+        .set-item:last-child {
+            border-bottom: none !important;
+        }
+
+        .set-info {
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.75rem !important;
+        }
+
+        .set-number {
+            font-size: 0.875rem !important;
+            color: var(--muted-foreground) !important;
+            font-weight: 500 !important;
+        }
+
+        .set-details {
+            font-size: 0.9375rem !important;
+            color: var(--foreground) !important;
+            font-weight: 500 !important;
+        }
+
+        .set-check {
+            color: var(--accent) !important;
+            font-size: 1.25rem !important;
+        }
+
+        /* Add Exercise Button */
+        .btn-add {
+            background: var(--primary) !important;
+            color: var(--primary-foreground) !important;
+            border: none !important;
+            border-radius: 0.75rem !important;
+            padding: 1rem !important;
+            font-size: 1rem !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            margin: 1rem 1.25rem !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 0.5rem !important;
+            transition: all 200ms ease !important;
+            box-shadow: var(--shadow-md) !important;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: var(--shadow-lg) !important;
+        }
+
+        .btn-add:active {
+            transform: scale(0.95) !important;
+        }
+
+        /* Progress Screen */
+        .progress-screen {
+            display: none !important;
+        }
+
+        .progress-screen.active {
+            display: block !important;
+            animation: fadeIn 300ms ease-out !important;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .chart-container {
+            background: var(--card) !important;
+            margin: 1rem 1.25rem !important;
+            border-radius: var(--radius) !important;
+            padding: 1.5rem !important;
+            box-shadow: var(--shadow-md) !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .chart-title {
+            font-size: 1.125rem !important;
+            font-weight: 600 !important;
+            margin-bottom: 1rem !important;
+            color: var(--foreground) !important;
+        }
+
+        .chart-container canvas {
+            max-height: 250px !important;
+            height: 250px !important;
+        }
+
+        .pr-list {
+            background: var(--card) !important;
+            margin: 1rem 1.25rem !important;
+            border-radius: var(--radius) !important;
+            padding: 1.25rem !important;
+            box-shadow: var(--shadow-md) !important;
+        }
+
+        .pr-list h3 {
+            font-size: 1.125rem !important;
+            font-weight: 600 !important;
+            margin-bottom: 1rem !important;
+            color: var(--foreground) !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+        }
+
+        .pr-item {
+            padding: 1rem !important;
+            border-radius: 0.75rem !important;
+            background: var(--secondary) !important;
+            margin-bottom: 0.75rem !important;
+            animation: slideIn 400ms ease-out !important;
+        }
+
+        .pr-item:last-child {
+            margin-bottom: 0 !important;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .pr-exercise {
+            font-size: 1rem !important;
+            font-weight: 600 !important;
+            color: var(--foreground) !important;
+            margin-bottom: 0.25rem !important;
+        }
+
+        .pr-details {
+            font-size: 0.875rem !important;
+            color: var(--muted-foreground) !important;
+        }
+
+        .stats-grid {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 1rem !important;
+            margin: 1rem 1.25rem !important;
+        }
+
+        .stat-card {
+            background: var(--card) !important;
+            border-radius: var(--radius) !important;
+            padding: 1.25rem !important;
+            box-shadow: var(--shadow-md) !important;
+            animation: fadeInUp 500ms ease-out !important;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-value {
+            font-size: 1.75rem !important;
+            font-weight: 700 !important;
+            color: var(--foreground) !important;
+            margin-bottom: 0.25rem !important;
+        }
+
+        .stat-label {
+            font-size: 0.875rem !important;
+            color: var(--muted-foreground) !important;
+        }
+
+        /* Templates Screen */
+        .templates-screen {
+            display: none !important;
+        }
+
+        .templates-screen.active {
+            display: block !important;
+            animation: fadeIn 300ms ease-out !important;
+        }
+
+        .template-card {
+            background: var(--card) !important;
+            margin: 1rem 1.25rem !important;
+            border-radius: var(--radius) !important;
+            padding: 1.5rem !important;
+            box-shadow: var(--shadow-md) !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .template-header {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            margin-bottom: 0.75rem !important;
+        }
+
+        .template-name {
+            font-size: 1.25rem !important;
+            font-weight: 600 !important;
+            color: var(--foreground) !important;
+        }
+
+        .template-info {
+            font-size: 0.875rem !important;
+            color: var(--muted-foreground) !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .template-actions {
+            display: flex !important;
+            gap: 0.75rem !important;
+        }
+
+        .btn-primary {
+            flex: 1 !important;
+            background: var(--primary) !important;
+            color: var(--primary-foreground) !important;
+            border: none !important;
+            border-radius: 0.75rem !important;
+            padding: 0.875rem !important;
+            font-size: 0.9375rem !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: all 200ms ease !important;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.95) !important;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            width: 100% !important;
+            max-width: 428px !important;
+            background: var(--card) !important;
+            border-top: 1px solid var(--border) !important;
+            display: flex !important;
+            justify-content: space-around !important;
+            padding: 0.75rem 0 !important;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05) !important;
+            z-index: 1000 !important;
+        }
+
+        .nav-item {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 0.25rem !important;
+            padding: 0.5rem 1.5rem !important;
+            cursor: pointer !important;
+            transition: all 200ms ease !important;
+            border: none !important;
+            background: none !important;
+            color: var(--muted-foreground) !important;
+            font-size: 0.75rem !important;
+            font-weight: 500 !important;
+        }
+
+        .nav-item.active {
+            color: var(--primary) !important;
+        }
+
+        .nav-item:active {
+            transform: scale(0.95) !important;
+        }
+
+        .nav-icon {
+            font-size: 1.5rem !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Workout Screen -->
+        <div id="workoutScreen" class="workout-screen">
+            <div class="header">
+                <h1>Push Day</h1>
+                <div class="header-actions">
+                    <button class="btn-icon" onclick="pauseWorkout()">⏸</button>
+                    <button class="btn-icon" onclick="finishWorkout()">✓</button>
+                </div>
+            </div>
+            
+            <div class="timer">
+                <span class="timer-icon">⏱</span>
+                <span id="workoutTimer">00:00:00</span>
+            </div>
+
+            <div class="exercise-card">
+                <div class="exercise-header">
+                    <div>
+                        <div class="exercise-name" id="currentExercise">Bench Press</div>
+                        <div class="set-indicator" id="setIndicator">Set 1 of 4</div>
+                    </div>
+                </div>
+
+                <div id="prBadge" class="pr-badge" style="display: none;">
+                    🏆 PR! <span id="prMessage"></span>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Weight</label>
+                    <div class="input-wrapper">
+                        <input type="number" class="input-field" id="weightInput" value="185" min="0" step="2.5">
+                        <span class="input-unit">lbs</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Reps</label>
+                    <div class="input-wrapper">
+                        <input type="number" class="input-field" id="repsInput" value="8" min="1" step="1">
+                        <span class="input-unit">reps</span>
+                    </div>
+                </div>
+
+                <button class="btn-complete" onclick="completeSet()">
+                    <span>✓</span>
+                    Complete Set
+                </button>
+            </div>
+
+            <div id="restTimer" class="rest-timer" style="display: none;">
+                <h3>Rest Timer</h3>
+                <div class="timer-circle">
+                    <svg class="timer-svg" width="120" height="120">
+                        <circle class="timer-circle-bg" cx="60" cy="60" r="52"></circle>
+                        <circle class="timer-circle-progress" id="timerProgress" cx="60" cy="60" r="52" 
+                                stroke-dasharray="326.73" stroke-dashoffset="0"></circle>
+                    </svg>
+                    <div class="timer-text" id="restTimerText">01:30</div>
+                </div>
+                <div class="timer-actions">
+                    <button class="btn-secondary" onclick="skipRest()">Skip</button>
+                    <button class="btn-secondary" onclick="completeRest()">Complete Rest</button>
+                </div>
+            </div>
+
+            <div class="previous-sets">
+                <h3>Previous Sets</h3>
+                <div id="previousSetsList"></div>
+            </div>
+
+            <button class="btn-add" onclick="addExercise()">
+                <span>+</span>
+                Add Exercise
+            </button>
+        </div>
+
+        <!-- Progress Screen -->
+        <div id="progressScreen" class="progress-screen">
+            <div class="header">
+                <h1>Progress</h1>
+                <div class="header-actions">
+                    <button class="btn-icon" onclick="changeView('week')">Week</button>
+                    <button class="btn-icon" onclick="changeView('month')">Month</button>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Strength Progress</div>
+                <div style="position: relative; height: 250px; width: 100%;">
+                    <canvas id="strengthChart" width="400" height="250"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Volume Progress</div>
+                <div style="position: relative; height: 250px; width: 100%;">
+                    <canvas id="volumeChart" width="400" height="250"></canvas>
+                </div>
+            </div>
+
+            <div class="pr-list">
+                <h3>🏆 Recent PRs</h3>
+                <div id="prList"></div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalVolume">15,000</div>
+                    <div class="stat-label">Total Volume (lbs)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="workoutCount">12</div>
+                    <div class="stat-label">Workouts This Month</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Templates Screen -->
+        <div id="templatesScreen" class="templates-screen">
+            <div class="header">
+                <h1>Templates</h1>
+                <div class="header-actions">
+                    <button class="btn-icon" onclick="createTemplate()">+</button>
+                </div>
+            </div>
+
+            <div id="templatesList">
+                <div class="template-card">
+                    <div class="template-header">
+                        <div class="template-name">Push Day</div>
+                    </div>
+                    <div class="template-info">6 exercises • ~60 min</div>
+                    <div class="template-actions">
+                        <button class="btn-primary" onclick="startTemplate('push')">Start</button>
+                        <button class="btn-secondary" onclick="editTemplate('push')">Edit</button>
+                    </div>
+                </div>
+
+                <div class="template-card">
+                    <div class="template-header">
+                        <div class="template-name">Pull Day</div>
+                    </div>
+                    <div class="template-info">5 exercises • ~50 min</div>
+                    <div class="template-actions">
+                        <button class="btn-primary" onclick="startTemplate('pull')">Start</button>
+                        <button class="btn-secondary" onclick="editTemplate('pull')">Edit</button>
+                    </div>
+                </div>
+
+                <div class="template-card">
+                    <div class="template-header">
+                        <div class="template-name">Leg Day</div>
+                    </div>
+                    <div class="template-info">7 exercises • ~70 min</div>
+                    <div class="template-actions">
+                        <button class="btn-primary" onclick="startTemplate('legs')">Start</button>
+                        <button class="btn-secondary" onclick="editTemplate('legs')">Edit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <button class="nav-item active" onclick="showScreen('workout')">
+                <span class="nav-icon">💪</span>
+                <span>Workout</span>
+            </button>
+            <button class="nav-item" onclick="showScreen('progress')">
+                <span class="nav-icon">📊</span>
+                <span>Progress</span>
+            </button>
+            <button class="nav-item" onclick="showScreen('templates')">
+                <span class="nav-icon">📋</span>
+                <span>Templates</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // State Management
+        let workoutState = {
+            currentExercise: 'Bench Press',
+            currentSet: 1,
+            totalSets: 4,
+            exercises: [],
+            previousSets: [],
+            workoutStartTime: null,
+            restTimerActive: false,
+            restTimeRemaining: 90,
+            restTimerInterval: null
+        };
+
+        let prData = [
+            { exercise: 'Bench Press', weight: 200, reps: 5, date: 'Today' },
+            { exercise: 'Squat', weight: 275, reps: 3, date: '2 days ago' },
+            { exercise: 'Deadlift', weight: 315, reps: 1, date: '3 days ago' }
+        ];
+
+        let strengthData = {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            bench: [185, 190, 195, 200],
+            squat: [250, 260, 270, 275],
+            deadlift: [300, 305, 310, 315]
+        };
+
+        let volumeData = {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            volumes: [12000, 13500, 14200, 15000]
+        };
+
+        // Chart instances
+        let strengthChart = null;
+        let volumeChart = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            startWorkoutTimer();
+            loadPreviousSets();
+            loadPRs();
+        });
+
+        // Workout Timer
+        function startWorkoutTimer() {
+            workoutState.workoutStartTime = Date.now();
+            setInterval(() => {
+                const elapsed = Date.now() - workoutState.workoutStartTime;
+                const hours = Math.floor(elapsed / 3600000);
+                const minutes = Math.floor((elapsed % 3600000) / 60000);
+                const seconds = Math.floor((elapsed % 60000) / 1000);
+                document.getElementById('workoutTimer').textContent = 
+                    `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // Complete Set
+        function completeSet() {
+            const weight = parseFloat(document.getElementById('weightInput').value);
+            const reps = parseInt(document.getElementById('repsInput').value);
+            
+            // Check for PR
+            checkPR(weight, reps);
+            
+            // Add to previous sets
+            workoutState.previousSets.push({
+                set: workoutState.currentSet,
+                weight: weight,
+                reps: reps
+            });
+            
+            // Update UI
+            loadPreviousSets();
+            
+            // Move to next set
+            if (workoutState.currentSet < workoutState.totalSets) {
+                workoutState.currentSet++;
+                document.getElementById('setIndicator').textContent = 
+                    `Set ${workoutState.currentSet} of ${workoutState.totalSets}`;
+                
+                // Start rest timer
+                startRestTimer();
+            } else {
+                // Exercise complete
+                alert('Exercise complete!');
+            }
+            
+            // Animate button
+            const btn = event.target;
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                btn.style.transform = 'scale(1)';
+            }, 150);
+        }
+
+        // PR Detection
+        function checkPR(weight, reps) {
+            // Simple PR detection logic
+            const previousMax = workoutState.previousSets
+                .filter(s => s.weight === weight)
+                .map(s => s.reps)
+                .reduce((a, b) => Math.max(a, b), 0);
+            
+            if (reps > previousMax || workoutState.previousSets.length === 0) {
+                const prBadge = document.getElementById('prBadge');
+                const prMessage = document.getElementById('prMessage');
+                
+                if (reps > previousMax && previousMax > 0) {
+                    prMessage.textContent = `+${reps - previousMax} reps at ${weight} lbs`;
+                } else {
+                    prMessage.textContent = `${weight} lbs × ${reps} reps`;
+                }
+                
+                prBadge.style.display = 'flex';
+                setTimeout(() => {
+                    prBadge.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Rest Timer
+        function startRestTimer() {
+            workoutState.restTimerActive = true;
+            workoutState.restTimeRemaining = 90;
+            document.getElementById('restTimer').style.display = 'block';
+            
+            const progressCircle = document.getElementById('timerProgress');
+            const circumference = 2 * Math.PI * 52;
+            progressCircle.style.strokeDasharray = circumference;
+            
+            workoutState.restTimerInterval = setInterval(() => {
+                workoutState.restTimeRemaining--;
+                
+                const minutes = Math.floor(workoutState.restTimeRemaining / 60);
+                const seconds = workoutState.restTimeRemaining % 60;
+                document.getElementById('restTimerText').textContent = 
+                    `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                
+                const progress = (90 - workoutState.restTimeRemaining) / 90;
+                progressCircle.style.strokeDashoffset = circumference * (1 - progress);
+                
+                if (workoutState.restTimeRemaining <= 0) {
+                    completeRest();
+                }
+            }, 1000);
+        }
+
+        function skipRest() {
+            completeRest();
+        }
+
+        function completeRest() {
+            if (workoutState.restTimerInterval) {
+                clearInterval(workoutState.restTimerInterval);
+            }
+            workoutState.restTimerActive = false;
+            document.getElementById('restTimer').style.display = 'none';
+        }
+
+        // Load Previous Sets
+        function loadPreviousSets() {
+            const list = document.getElementById('previousSetsList');
+            list.innerHTML = '';
+            
+            workoutState.previousSets.forEach(set => {
+                const item = document.createElement('div');
+                item.className = 'set-item';
+                item.innerHTML = `
+                    <div class="set-info">
+                        <span class="set-number">Set ${set.set}</span>
+                        <span class="set-details">${set.weight} lbs × ${set.reps} reps</span>
+                    </div>
+                    <span class="set-check">✓</span>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // Navigation
+        function showScreen(screen) {
+            document.querySelectorAll('.workout-screen, .progress-screen, .templates-screen').forEach(s => {
+                s.style.display = 'none';
+                s.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            if (screen === 'workout') {
+                document.getElementById('workoutScreen').style.display = 'block';
+                document.querySelectorAll('.nav-item')[0].classList.add('active');
+            } else if (screen === 'progress') {
+                document.getElementById('progressScreen').style.display = 'block';
+                document.getElementById('progressScreen').classList.add('active');
+                document.querySelectorAll('.nav-item')[1].classList.add('active');
+                // Initialize charts when progress screen is shown
+                setTimeout(() => {
+                    initializeCharts();
+                }, 100);
+            } else if (screen === 'templates') {
+                document.getElementById('templatesScreen').style.display = 'block';
+                document.getElementById('templatesScreen').classList.add('active');
+                document.querySelectorAll('.nav-item')[2].classList.add('active');
+            }
+        }
+
+        // Charts
+        function initializeCharts() {
+            // Destroy existing charts if they exist
+            if (strengthChart) {
+                strengthChart.destroy();
+            }
+            if (volumeChart) {
+                volumeChart.destroy();
+            }
+
+            // Strength Chart
+            const strengthCtx = document.getElementById('strengthChart');
+            if (strengthCtx) {
+                strengthChart = new Chart(strengthCtx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: strengthData.labels,
+                        datasets: [
+                            {
+                                label: 'Bench Press',
+                                data: strengthData.bench,
+                                borderColor: '#007aff',
+                                backgroundColor: 'rgba(0, 122, 255, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            },
+                            {
+                                label: 'Squat',
+                                data: strengthData.squat,
+                                borderColor: '#34c759',
+                                backgroundColor: 'rgba(52, 199, 89, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            },
+                            {
+                                label: 'Deadlift',
+                                data: strengthData.deadlift,
+                                borderColor: '#ff9500',
+                                backgroundColor: 'rgba(255, 149, 0, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 2,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 15,
+                                    usePointStyle: true
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        animation: {
+                            duration: 800
+                        }
+                    }
+                });
+            }
+
+            // Volume Chart
+            const volumeCtx = document.getElementById('volumeChart');
+            if (volumeCtx) {
+                volumeChart = new Chart(volumeCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: volumeData.labels,
+                        datasets: [{
+                            label: 'Volume (lbs)',
+                            data: volumeData.volumes,
+                            backgroundColor: '#007aff',
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 2,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        animation: {
+                            duration: 800
+                        }
+                    }
+                });
+            }
+        }
+
+        // Load PRs
+        function loadPRs() {
+            const list = document.getElementById('prList');
+            list.innerHTML = '';
+            
+            prData.forEach(pr => {
+                const item = document.createElement('div');
+                item.className = 'pr-item';
+                item.innerHTML = `
+                    <div class="pr-exercise">${pr.exercise}</div>
+                    <div class="pr-details">${pr.weight} lbs × ${pr.reps} reps • ${pr.date}</div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // Template Functions
+        function startTemplate(type) {
+            showScreen('workout');
+            alert(`Starting ${type} template workout!`);
+        }
+
+        function editTemplate(type) {
+            alert(`Editing ${type} template`);
+        }
+
+        function createTemplate() {
+            alert('Create new template');
+        }
+
+        function addExercise() {
+            alert('Add new exercise');
+        }
+
+        function pauseWorkout() {
+            alert('Workout paused');
+        }
+
+        function finishWorkout() {
+            if (confirm('Finish workout?')) {
+                alert('Workout saved!');
+            }
+        }
+
+        function changeView(view) {
+            alert(`Switched to ${view} view`);
+        }
+    </script>
+</body>
+</html>
+

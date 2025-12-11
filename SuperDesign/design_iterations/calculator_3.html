@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Cyber Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Oxanium', sans-serif !important;
+            background: #0a0a0f !important;
+            min-height: 100vh !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 1rem !important;
+            position: relative !important;
+            overflow: hidden !important;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 0, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .calculator-container {
+            background: #1a1a2e !important;
+            border-radius: 1.5rem !important;
+            padding: 2rem !important;
+            box-shadow: 
+                0 0 30px rgba(0, 255, 255, 0.3),
+                0 0 60px rgba(255, 0, 255, 0.2),
+                inset 0 0 20px rgba(0, 255, 255, 0.1) !important;
+            border: 2px solid #00ffff !important;
+            max-width: 400px !important;
+            width: 100% !important;
+            animation: slideUp 600ms ease-out !important;
+            position: relative !important;
+            z-index: 1 !important;
+        }
+
+        .calculator-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #00ffff);
+            border-radius: 1.5rem;
+            z-index: -1;
+            opacity: 0.5;
+            animation: borderGlow 3s linear infinite;
+        }
+
+        @keyframes borderGlow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .display-container {
+            background: #0f0f1e !important;
+            border-radius: 1rem !important;
+            padding: 1.5rem !important;
+            margin-bottom: 1.5rem !important;
+            border: 2px solid #00ffff !important;
+            min-height: 120px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-end !important;
+            box-shadow: 
+                inset 0 0 20px rgba(0, 255, 255, 0.2),
+                0 0 10px rgba(0, 255, 255, 0.3) !important;
+            position: relative !important;
+            overflow: hidden !important;
+        }
+
+        .display-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            animation: scan 3s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .display {
+            font-family: 'JetBrains Mono', monospace !important;
+            font-size: 2.5rem !important;
+            font-weight: 600 !important;
+            color: #00ffff !important;
+            text-align: right !important;
+            word-break: break-all !important;
+            transition: opacity 200ms, transform 200ms !important;
+            line-height: 1.2 !important;
+            text-shadow: 
+                0 0 10px #00ffff,
+                0 0 20px #00ffff,
+                0 0 30px #00ffff !important;
+        }
+
+        .display.update {
+            animation: numberUpdate 200ms ease-out !important;
+        }
+
+        @keyframes numberUpdate {
+            0% {
+                opacity: 0.7;
+                transform: scale(0.98);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .display.error {
+            animation: shake 400ms ease-in-out !important;
+            color: #ff00ff !important;
+            text-shadow: 
+                0 0 10px #ff00ff,
+                0 0 20px #ff00ff !important;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .button-grid {
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 0.75rem !important;
+        }
+
+        .button-row {
+            display: contents !important;
+        }
+
+        .btn {
+            background: #1a1a2e !important;
+            color: #00ffff !important;
+            border: 2px solid #00ffff !important;
+            border-radius: 0.75rem !important;
+            font-size: 1.25rem !important;
+            font-weight: 600 !important;
+            font-family: 'Oxanium', sans-serif !important;
+            padding: 1.25rem !important;
+            cursor: pointer !important;
+            transition: all 200ms ease !important;
+            position: relative !important;
+            overflow: hidden !important;
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+            user-select: none !important;
+            text-shadow: 0 0 5px #00ffff !important;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3) !important;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px) scale(1.05) !important;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6) !important;
+            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff !important;
+        }
+
+        .btn:active {
+            transform: translateY(0) scale(0.95) !important;
+            transition: all 150ms ease !important;
+        }
+
+        .btn.number {
+            background: #0f0f1e !important;
+            border-color: #00ffff !important;
+        }
+
+        .btn.operator {
+            background: #1a0a2e !important;
+            border-color: #ff00ff !important;
+            color: #ff00ff !important;
+            text-shadow: 0 0 5px #ff00ff !important;
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.3) !important;
+        }
+
+        .btn.operator:hover {
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.6) !important;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff !important;
+        }
+
+        .btn.equals {
+            background: linear-gradient(135deg, #00ffff 0%, #ff00ff 100%) !important;
+            color: #0a0a0f !important;
+            border: none !important;
+            font-weight: 700 !important;
+            grid-column: span 1 !important;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6), 0 0 40px rgba(255, 0, 255, 0.4) !important;
+            text-shadow: none !important;
+        }
+
+        .btn.equals:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.8), 0 0 60px rgba(255, 0, 255, 0.6) !important;
+            transform: translateY(-2px) scale(1.05) !important;
+        }
+
+        .btn.clear {
+            background: #2e0a0a !important;
+            border-color: #ff3333 !important;
+            color: #ff3333 !important;
+            text-shadow: 0 0 5px #ff3333 !important;
+            box-shadow: 0 0 10px rgba(255, 51, 51, 0.3) !important;
+        }
+
+        .btn.clear:hover {
+            box-shadow: 0 0 20px rgba(255, 51, 51, 0.6) !important;
+            text-shadow: 0 0 10px #ff3333, 0 0 20px #ff3333 !important;
+        }
+
+        .btn.zero {
+            grid-column: span 2 !important;
+        }
+
+        .ripple {
+            position: absolute !important;
+            border-radius: 50% !important;
+            background: rgba(0, 255, 255, 0.3) !important;
+            transform: scale(0) !important;
+            animation: rippleEffect 400ms ease-out !important;
+            pointer-events: none !important;
+        }
+
+        @keyframes rippleEffect {
+            to {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calculator-container {
+                padding: 1.5rem !important;
+            }
+            
+            .display {
+                font-size: 2rem !important;
+            }
+            
+            .btn {
+                padding: 1rem !important;
+                font-size: 1.1rem !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="display-container">
+            <div class="display" id="display">0</div>
+        </div>
+        
+        <div class="button-grid">
+            <div class="button-row">
+                <button class="btn clear" onclick="clearAll()">AC</button>
+                <button class="btn clear" onclick="backspace()">⌫</button>
+                <button class="btn operator" onclick="appendOperator('%')">%</button>
+                <button class="btn operator" onclick="appendOperator('÷')">÷</button>
+            </div>
+            
+            <div class="button-row">
+                <button class="btn number" onclick="appendNumber('7')">7</button>
+                <button class="btn number" onclick="appendNumber('8')">8</button>
+                <button class="btn number" onclick="appendNumber('9')">9</button>
+                <button class="btn operator" onclick="appendOperator('×')">×</button>
+            </div>
+            
+            <div class="button-row">
+                <button class="btn number" onclick="appendNumber('4')">4</button>
+                <button class="btn number" onclick="appendNumber('5')">5</button>
+                <button class="btn number" onclick="appendNumber('6')">6</button>
+                <button class="btn operator" onclick="appendOperator('-')">−</button>
+            </div>
+            
+            <div class="button-row">
+                <button class="btn number" onclick="appendNumber('1')">1</button>
+                <button class="btn number" onclick="appendNumber('2')">2</button>
+                <button class="btn number" onclick="appendNumber('3')">3</button>
+                <button class="btn operator" onclick="appendOperator('+')">+</button>
+            </div>
+            
+            <div class="button-row">
+                <button class="btn operator" onclick="toggleSign()">±</button>
+                <button class="btn number zero" onclick="appendNumber('0')">0</button>
+                <button class="btn number" onclick="appendDecimal()">.</button>
+                <button class="btn equals" onclick="calculate()">=</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentValue = '0';
+        let previousValue = '';
+        let operator = '';
+        let shouldResetDisplay = false;
+
+        const display = document.getElementById('display');
+
+        function updateDisplay(value) {
+            display.textContent = value;
+            display.classList.add('update');
+            setTimeout(() => {
+                display.classList.remove('update');
+            }, 200);
+        }
+
+        function createRipple(event) {
+            const button = event.currentTarget;
+            const ripple = document.createElement('span');
+            const rect = button.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = event.clientX - rect.left - size / 2;
+            const y = event.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.classList.add('ripple');
+            
+            button.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 400);
+        }
+
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', createRipple);
+        });
+
+        function appendNumber(num) {
+            if (shouldResetDisplay) {
+                currentValue = '0';
+                shouldResetDisplay = false;
+            }
+            
+            if (currentValue === '0') {
+                currentValue = num;
+            } else {
+                currentValue += num;
+            }
+            
+            updateDisplay(currentValue);
+        }
+
+        function appendDecimal() {
+            if (shouldResetDisplay) {
+                currentValue = '0';
+                shouldResetDisplay = false;
+            }
+            
+            if (!currentValue.includes('.')) {
+                currentValue += '.';
+                updateDisplay(currentValue);
+            }
+        }
+
+        function appendOperator(op) {
+            if (previousValue && operator && !shouldResetDisplay) {
+                calculate();
+            } else {
+                previousValue = currentValue;
+            }
+            
+            operator = op;
+            shouldResetDisplay = true;
+        }
+
+        function calculate() {
+            if (!previousValue || !operator) return;
+            
+            let result;
+            const prev = parseFloat(previousValue);
+            const curr = parseFloat(currentValue);
+            
+            try {
+                switch (operator) {
+                    case '+':
+                        result = prev + curr;
+                        break;
+                    case '-':
+                        result = prev - curr;
+                        break;
+                    case '×':
+                        result = prev * curr;
+                        break;
+                    case '÷':
+                        if (curr === 0) {
+                            throw new Error('Division by zero');
+                        }
+                        result = prev / curr;
+                        break;
+                    case '%':
+                        result = prev % curr;
+                        break;
+                    default:
+                        return;
+                }
+                
+                result = parseFloat(result.toFixed(10));
+                currentValue = result.toString();
+                updateDisplay(currentValue);
+                previousValue = '';
+                operator = '';
+                shouldResetDisplay = true;
+            } catch (error) {
+                display.classList.add('error');
+                currentValue = '0';
+                updateDisplay('Error');
+                setTimeout(() => {
+                    display.classList.remove('error');
+                    clearAll();
+                }, 1500);
+            }
+        }
+
+        function clearAll() {
+            currentValue = '0';
+            previousValue = '';
+            operator = '';
+            shouldResetDisplay = false;
+            updateDisplay('0');
+        }
+
+        function backspace() {
+            if (currentValue.length > 1) {
+                currentValue = currentValue.slice(0, -1);
+            } else {
+                currentValue = '0';
+            }
+            updateDisplay(currentValue);
+        }
+
+        function toggleSign() {
+            if (currentValue !== '0') {
+                currentValue = currentValue.startsWith('-') 
+                    ? currentValue.slice(1) 
+                    : '-' + currentValue;
+                updateDisplay(currentValue);
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '0' && e.key <= '9') {
+                appendNumber(e.key);
+            } else if (e.key === '.') {
+                appendDecimal();
+            } else if (e.key === '+') {
+                appendOperator('+');
+            } else if (e.key === '-') {
+                appendOperator('-');
+            } else if (e.key === '*') {
+                appendOperator('×');
+            } else if (e.key === '/') {
+                e.preventDefault();
+                appendOperator('÷');
+            } else if (e.key === 'Enter' || e.key === '=') {
+                e.preventDefault();
+                calculate();
+            } else if (e.key === 'Escape') {
+                clearAll();
+            } else if (e.key === 'Backspace') {
+                e.preventDefault();
+                backspace();
+            }
+        });
+    </script>
+</body>
+</html>
+

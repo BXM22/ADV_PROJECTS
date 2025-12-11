@@ -1,0 +1,32 @@
+# Python/JavaScript
+__pycache__/
+*.py[cod]
+node_modules/
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Encrypted files
+*.encrypted
+*.locked
+
+# Keys (NEVER commit keys!)
+*.key
+*.pem
+keys/
+secrets/
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
